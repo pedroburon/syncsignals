@@ -1,7 +1,7 @@
 syncsignals
 ===========
 
-Synchronous Signals Django like for golang
+Synchronous Signals Django like for golang.
 
 
 Usage

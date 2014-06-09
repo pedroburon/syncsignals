@@ -3,6 +3,7 @@ package syncsignals
 import (
     "testing"
     "errors"
+    "fmt"
     "github.com/bmizerany/assert"
 )
 
@@ -60,15 +61,30 @@ func TestSendTwoCallback(t *testing.T) {
     assert.Equal(t, true, called2nd, "2nd Callback not called")
 }
 
-func TestReturnCallback(t *testing.T) {
+func TestSendWithArgs(t *testing.T) {
     s := new(signal)
-    err := errors.New("Mock error")
+    calledArgs := []interface{}{}
     s.connect(func(args []interface{}) error {
-        return err
+        calledArgs = args
+        return nil
     })
-    results := s.send(nil)
-    expected := []error{err}
-    assert.Equal(t, results, expected, "results diferent from expected")
+    expected := []interface{}{"hola", "mundo"}
+    s.send(expected)
+    assert.Equal(t, expected, calledArgs, "function not called with proper args")
+}
+
+func assertSameErrors(t *testing.T, expected []error, results []error) {
+    assert.Equal(t, len(expected), len(results))
+    for el := range expected {
+        isThere := false
+        for r := range results {
+            if r == el {
+                isThere = true
+                break
+            }
+        }
+        assert.Equal(t, true, isThere, fmt.Sprintf("element %s not present", el))
+    }
 }
 
 func TestReturnTwoCallback(t *testing.T) {
@@ -83,5 +99,20 @@ func TestReturnTwoCallback(t *testing.T) {
     })
     results := s.send(nil)
     expected := []error{err1, err2}
-    assert.Equal(t, results, expected, "results diferent from expected")
+    
+    assertSameErrors(t, expected, results)
+    
+    // assert.Equal(t, results, expected, "results diferent from expected")
+}
+
+func TestReturnCallback(t *testing.T) {
+    s := new(signal)
+    err := errors.New("Mock error")
+    s.connect(func(args []interface{}) error {
+        return err
+    })
+    results := s.send(nil)
+    expected := []error{err}
+
+    assertSameErrors(t, expected, results)
 }
