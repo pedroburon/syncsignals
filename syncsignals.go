@@ -2,7 +2,6 @@ package syncsignals
 
 import (
     "container/list"
-    "fmt"
 )
 
 type callback func([]interface{}) error
